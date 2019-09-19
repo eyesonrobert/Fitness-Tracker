@@ -2,7 +2,7 @@
   <form (ngSubmit)="onStartTraining(f)" #f="ngForm">
     <mat-card fxFlex.xs="100%" fxFlex="400px">
       <mat-card-title fxLayoutAlign="center">Time to Start Working Out!</mat-card-title>
-      <mat-card-content fxLayoutAlign="center">
+      <mat-card-content *ngIf="!isLoading" fxLayoutAlign="center">
         <mat-form-field>
           <mat-label>Select Your Work Out</mat-label>
           <mat-select placeholder="Choose Exercise" ngModel name="exercise" required>
@@ -13,7 +13,8 @@
         </mat-form-field>
       </mat-card-content>
       <mat-card-actions fxLayoutAlign="center">
-        <button type="submit" mat-button color="primary" [disabled]="f.invalid">Start</button>
+        <button *ngIf="!isLoading" type="submit" mat-button color="primary" [disabled]="f.invalid">Start</button>
+        <mat-spinner *ngIf="isLoading"></mat-spinner>
       </mat-card-actions>
     </mat-card>
   </form>

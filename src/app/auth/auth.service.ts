@@ -3,51 +3,68 @@ import { AuthData } from './auth-data';
 import { Subject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { TrainingService } from '../training/training.service';
+import { UIService } from '../shared/ui.service';
 
 @Injectable()
 
 export class AuthService {
     authChange = new Subject<boolean>();
-    private user: User;
+    private isAuthentiacated = false;
 
-    constructor(private router: Router) { }
+    // tslint:disable-next-line:max-line-length
+    constructor(private router: Router, private afauth: AngularFireAuth, private trainingService: TrainingService, private uiService: UIService) { }
+
+
+    initAuthListener() {
+        this.afauth.authState.subscribe(user => {
+            if (user) {
+                this.isAuthentiacated = true;
+                this.authChange.next(true);
+                this.router.navigate(['/training']);
+            } else {
+                this.trainingService.cancelSubscriptions();
+                this.authChange.next(false);
+                this.router.navigate(['/login']);
+                this.isAuthentiacated = false;
+            }
+        });
+    }
 
     registerUser(authData: AuthData) {
-        this.user = {
-            email: authData.email,
-            userId: Math.round(Math.random() * 10000).toString()
-        };
-        this.authSuccessful();
+        this.uiService.loadingStateChanged.next(true);
 
+        this.afauth.auth.createUserWithEmailAndPassword(authData.email, authData.password)
+            .then(result => {
+                this.uiService.loadingStateChanged.next(false);
+            })
+            .catch(error => {
+                this.uiService.loadingStateChanged.next(false);
+
+                this.uiService.showSnackbar(error.message, null, 3000);
+            });
     }
 
     login(authData: AuthData) {
-        this.user = {
-            email: authData.email,
-            userId: Math.round(Math.random() * 10000).toString()
-        };
-        this.authSuccessful();
+        this.uiService.loadingStateChanged.next(true);
 
+        this.afauth.auth.signInWithEmailAndPassword(authData.email, authData.password)
+            .then(result => {
+                this.uiService.loadingStateChanged.next(false);
+            })
+            .catch(error => {
+                this.uiService.loadingStateChanged.next(false);
+
+                this.uiService.showSnackbar(error.message, null, 3000);
+            });
     }
 
     logout() {
-        this.user = null;
-        this.authChange.next(false);
-        this.router.navigate(['/login']);
-
-    }
-
-    getUser() {
-        return { ...this.user };
+        this.afauth.auth.signOut();
     }
 
     isAuth() {
-        return this.user != null;
-    }
-
-    private authSuccessful() {
-        this.authChange.next(true);
-        this.router.navigate(['/training']);
+        return this.isAuthentiacated;
     }
 }
-
