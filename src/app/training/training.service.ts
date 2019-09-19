@@ -15,8 +15,6 @@ export class TrainingService {
     private runningExercise: Exercise;
     private fbSubs: Subscription[] = [];
 
-
-
     constructor(private db: AngularFirestore, private uiService: UIService) { }
 
     fetchAvailableExercises() {
@@ -35,13 +33,20 @@ export class TrainingService {
                 })
             )
             .subscribe((exercises: Exercise[]) => {
+                this.uiService.loadingStateChanged.next(false);
+
                 this.availableExercises = exercises;
 
                 this.exercisesChanged.next([...this.availableExercises]);
+            },
+                error => {
+                    this.uiService.loadingStateChanged.next(false);
 
-                this.uiService.loadingStateChanged.next(false);
+                    this.uiService.showSnackbar('Could Not Show Exercises', null, 3000);
 
-            }));
+                    this.exercisesChanged.next(null);
+
+                }));
     }
 
     startExercise(selectedId: string) {
