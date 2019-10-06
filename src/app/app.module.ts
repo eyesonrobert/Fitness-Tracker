@@ -7,6 +7,8 @@ import { MaterialModule } from './material.module';
 import { AngularFireModule } from '@angular/fire';
 import { AuthModule } from './auth/auth.module';
 import { SharedModule } from './shared/shared.module';
+import { StoreModule } from '@ngrx/store';
+import { appReducer } from './app.reducer';
 
 import { AppComponent } from './app.component';
 import { WelcomeComponent } from './welcome/welcome.component';
@@ -37,6 +39,7 @@ import { UIService } from './shared/ui.service';
     AngularFireModule.initializeApp(environment.firebase),
     SharedModule,
     AuthModule,
+    StoreModule.forRoot({ ui: appReducer })
   ],
   providers: [AuthService, TrainingService, UIService],
   bootstrap: [AppComponent],
