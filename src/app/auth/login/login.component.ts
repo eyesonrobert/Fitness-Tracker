@@ -6,7 +6,7 @@ import { UIService } from '../../shared/ui.service';
 import { Subscription, Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
 import { Store } from '@ngrx/store';
-import * as fromApp from '../../app.reducer';
+import * as fromRoot from '../../app.reducer';
 
 
 @Component({
@@ -19,10 +19,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoading$: Observable<boolean>;
   private loadingSubs: Subscription;
 
-  constructor(private authService: AuthService, private uiService: UIService, private store: Store<{ ui: fromApp.State }>) { }
+  constructor(private authService: AuthService, private uiService: UIService, private store: Store<fromRoot.State>) { }
 
   ngOnInit() {
-    this.isLoading$ = this.store.map(state => state.ui.isLoading);
+    this.isLoading$ = this.store.select(fromRoot.getIsLoading);
 
     // this.loadingSubs = this.uiService.loadingStateChanged.subscribe(isLoading => this.isLoading = isLoading);
 
